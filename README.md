@@ -2,5 +2,5 @@
 
 This repository contains public part of GB statistical testsuite used for testing random generators.
 
-## recorder ##
-[Recorder](../blob/master/recorder/src/com/generalbytes/sts/recorder/RNGRecorder.java) is example utility written in Java that is used for generating random number data samples. You should write your own utility in your language of choice for your own random generator.
+## Recorder ##
+[Recorder](../master/recorder/src/com/generalbytes/sts/recorder/RNGRecorder.java) is example utility written in Java that is used for generating random number data samples. You should write your own utility in your language of choice for your own random generator.
