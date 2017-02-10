@@ -1,5 +1,5 @@
-# sts_public
-#GB Statistical Test Suite
+
+# GB Statistical Test Suite - sts_public
 
 This repository contains public part of GB statistical testsuite used for testing random generators.
 
