@@ -1,7 +1,5 @@
 package com.generalbytes.sts.recorder.data;
 
-import java.util.List;
-
 public class Configuration {
     public enum OutputType {
         BINARY,
@@ -9,8 +7,8 @@ public class Configuration {
     }
     private OutputType outputType;
     private int range; //0-range
-    private List<SeedCountPair> seedCounts;
     private String filename;
+    private ISeedRecipe recipe;
 
     public Configuration() {
     }
@@ -31,12 +29,12 @@ public class Configuration {
         this.range = range;
     }
 
-    public List<SeedCountPair> getSeedCounts() {
-        return seedCounts;
+    public ISeedRecipe getRecipe() {
+        return recipe;
     }
 
-    public void setSeedCounts(List<SeedCountPair> seedCounts) {
-        this.seedCounts = seedCounts;
+    public void setRecipe(ISeedRecipe recipe) {
+        this.recipe = recipe;
     }
 
     public String getFilename() {

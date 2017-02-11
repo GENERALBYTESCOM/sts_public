@@ -1,7 +1,6 @@
 package com.generalbytes.sts.recorder;
 
-import com.generalbytes.sts.recorder.data.Configuration;
-import com.generalbytes.sts.recorder.data.SeedCountPair;
+import com.generalbytes.sts.recorder.data.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -70,32 +69,71 @@ public class RNGRecorder {
         int remainingParameters = args.length - 3;
         if (remainingParameters <= 0) {
             error("Missing seed and count parameters.");
-        }else if ((remainingParameters & 1) == 1) {
-            error("seed and count parameters are not specified as pairs");
         }
 
-        List<SeedCountPair> pairs = new ArrayList<>();
-        for (int i=0;i<remainingParameters/2;i++) {
-            String seed_string =  args[3 + i * 2];
-            String count_string = args[3 + i * 2 + 1];
+        String test_string =  args[3];
 
-
-            long seed = 0;
+        if (test_string.equalsIgnoreCase("block")) {
+            //special configuration for some systems that generate only up to x values from one seed
+            String seed_string = args[3 + 1]; // max seed
+            long maxSeed = 0;
             try {
-                seed_string = seed_string.replace("0x","").replace("h","");
-                seed = Long.parseLong(seed_string, 16);
+                seed_string = seed_string.replace("0x","").replace("h", "").replace("x","");
+                maxSeed = Long.parseLong(seed_string, 16);
             } catch (NumberFormatException e) {
                 error("Problem parsing seed value " + seed_string);
             }
+
+            String block_size_string = args[3 + 2];
+            long blockSize = 0;
+            try {
+                blockSize = Long.parseLong(block_size_string);
+            } catch (NumberFormatException e) {
+                error("Problem parsing block size value " + block_size_string);
+            }
+
+            String block_count_string = args[3 + 3];
             long count = 0;
             try {
-                count = Long.parseLong(count_string);
+                count = Long.parseLong(block_count_string);
             } catch (NumberFormatException e) {
-                error("Problem parsing count value " + count_string);
+                error("Problem parsing block count value " + block_count_string);
             }
-            pairs.add(new SeedCountPair(seed,count));
+
+            configuration.setRecipe(new BlockRecipe(maxSeed,count,blockSize));
+
+        }else{
+            //remaining parameters contain list of seeds and counts.
+            if ((remainingParameters & 1) == 1) {
+                error("seed and count parameters are not specified as pairs");
+            }
+
+            List<SeedCountPair> pairs = new ArrayList<>();
+            for (int i=0;i<remainingParameters/2;i++) {
+                String seed_string =  args[3 + i * 2];
+                String count_string = args[3 + i * 2 + 1];
+
+                //regular seeds specification
+
+                long seed = 0;
+                try {
+                    seed_string = seed_string.replace("0x","").replace("h","").replace("x","");
+                    seed = Long.parseLong(seed_string, 16);
+                } catch (NumberFormatException e) {
+                    error("Problem parsing seed value " + seed_string);
+                }
+                long count = 0;
+                try {
+                    count = Long.parseLong(count_string);
+                } catch (NumberFormatException e) {
+                    error("Problem parsing count value " + count_string);
+                }
+                pairs.add(new SeedCountPair(seed, count));
+            }
+            configuration.setRecipe(new ListRecipe(pairs));
         }
-        configuration.setSeedCounts(pairs);
+
+
         return configuration;
     }
 
@@ -124,6 +162,8 @@ public class RNGRecorder {
         System.out.println("                    decadic count of numbers that will be generated for a given seed.");
         System.out.println(" Note: ");
         System.out.println("     When more seeds and counts are specified the values will be appended into the output file.");
+        System.out.println(" Advanced:");
+
         System.out.println("");
     }
 
@@ -132,9 +172,11 @@ public class RNGRecorder {
         System.out.println("Writing binary output to file: " + c.getFilename() + "...");
         try {
             FileOutputStream fos = new FileOutputStream(new File(c.getFilename()));
-            final List<SeedCountPair> seedCounts = c.getSeedCounts();
-            for (int i = 0; i < seedCounts.size(); i++) {
-                SeedCountPair pair = seedCounts.get(i);
+            final ISeedRecipe recipe = c.getRecipe();
+            int seedsUsed = 0;
+            while (recipe.hasMorePairs()) {
+                SeedCountPair pair = recipe.nextPair();
+                seedsUsed++;
                 IRandom rnd = getRandom(pair.getSeed());
                 long count = pair.getCount();
                 int value = 0;
@@ -152,7 +194,7 @@ public class RNGRecorder {
                 fos.write((byte)value); //write last value to file.
             }
             fos.close();
-            System.out.println("Done.");
+            System.out.println("Done. Seeds used: " + seedsUsed);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -162,9 +204,11 @@ public class RNGRecorder {
         System.out.println("Writing numeric output to file: " + c.getFilename() + "...");
         try {
             FileOutputStream fos = new FileOutputStream(new File(c.getFilename()));
-            final List<SeedCountPair> seedCounts = c.getSeedCounts();
-            for (int i = 0; i < seedCounts.size(); i++) {
-                SeedCountPair pair = seedCounts.get(i);
+            final ISeedRecipe recipe = c.getRecipe();
+            int seedsUsed = 0;
+            while (recipe.hasMorePairs()) {
+                SeedCountPair pair = recipe.nextPair();
+                seedsUsed++;
                 IRandom rnd = getRandom(pair.getSeed());
                 long count = pair.getCount();
                 for (long j=0;j<count;j++) {
@@ -173,7 +217,7 @@ public class RNGRecorder {
                 }
             }
             fos.close();
-            System.out.println("Done.");
+            System.out.println("Done. Seeds used: " + seedsUsed);
         } catch (IOException e) {
             e.printStackTrace();
         }
