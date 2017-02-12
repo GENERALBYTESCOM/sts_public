@@ -1,6 +1,9 @@
-package com.generalbytes.sts.recorder.data;
+package com.generalbytes.sts.recorder.data.recipe;
 
-public class BlockRecipe implements ISeedRecipe{
+import com.generalbytes.sts.recorder.data.ISeedRecipe;
+import com.generalbytes.sts.recorder.data.SeedCountPair;
+
+public class BlockRecipe implements ISeedRecipe {
     private long maxSeed = 0;
     private long count = 0;
     private long blockSize = 0;
@@ -26,6 +29,6 @@ public class BlockRecipe implements ISeedRecipe{
 
     @Override
     public boolean hasMorePairs() {
-        return currentSeed <= maxSeed;
+        return currentSeed < maxSeed;
     }
 }

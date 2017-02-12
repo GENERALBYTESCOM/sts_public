@@ -1,4 +1,7 @@
-package com.generalbytes.sts.recorder.data;
+package com.generalbytes.sts.recorder.data.recipe;
+
+import com.generalbytes.sts.recorder.data.ISeedRecipe;
+import com.generalbytes.sts.recorder.data.SeedCountPair;
 
 import java.util.ArrayList;
 import java.util.List;

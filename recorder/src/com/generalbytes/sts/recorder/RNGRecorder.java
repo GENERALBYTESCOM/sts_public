@@ -1,6 +1,9 @@
 package com.generalbytes.sts.recorder;
 
 import com.generalbytes.sts.recorder.data.*;
+import com.generalbytes.sts.recorder.data.recipe.BlockRecipe;
+import com.generalbytes.sts.recorder.data.recipe.ListRecipe;
+import com.generalbytes.sts.recorder.data.recipe.RandomBlockRecipe;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -73,7 +76,7 @@ public class RNGRecorder {
 
         String test_string =  args[3];
 
-        if (test_string.equalsIgnoreCase("block")) {
+        if (test_string.equalsIgnoreCase("block") || test_string.equalsIgnoreCase("rblock")) {
             //special configuration for some systems that generate only up to x values from one seed
             String seed_string = args[3 + 1]; // max seed
             long maxSeed = 0;
@@ -100,7 +103,11 @@ public class RNGRecorder {
                 error("Problem parsing block count value " + block_count_string);
             }
 
-            configuration.setRecipe(new BlockRecipe(maxSeed,count,blockSize));
+            if (test_string.equalsIgnoreCase("block")) {
+                configuration.setRecipe(new BlockRecipe(maxSeed,count,blockSize));
+            }else {
+                configuration.setRecipe(new RandomBlockRecipe(maxSeed, count, blockSize));
+            }
 
         }else{
             //remaining parameters contain list of seeds and counts.
